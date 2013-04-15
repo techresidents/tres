@@ -1,1 +1,8 @@
 Tech Residents Python Elastic Search Library
+
+INSTALL:
+pip install git+ssh://dev.techresidents.com/tr/repos/techresidents/lib/python/tres#egg=tres
+
+DEVELOPMENT
+mkvirtualenv tres
+python setup.py develop
