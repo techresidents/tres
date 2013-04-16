@@ -31,4 +31,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Distributed Computing',
         ],
+    install_requires=[
+        'trhttp>=0.1'
+    ]
 )
