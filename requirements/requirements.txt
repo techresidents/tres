@@ -1,1 +1,2 @@
+git+ssh://dev.techresidents.com/tr/repos/techresidents/lib/python/trpycore.git@0.8.0#egg=trpycore
 git+ssh://dev.techresidents.com/tr/repos/techresidents/lib/python/trhttp.git@integration#egg=trhttp
