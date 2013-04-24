@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import json
 
 from tres.encode import Encoder
+from tres.search import SearchResult
 
 class Index(object):
     def __init__(self, client, name, type=None):
@@ -45,26 +46,12 @@ class Index(object):
         path = '%s/%s/%s' % (self.name, type, key)
         return self.client.send('DELETE', path)
 
-    def search(self, query, filter=None, facets=None,
-            start=None, size=None, type=None):
+    def search(self, search, type=None):
         type = type or self.type
         path = '%s/%s/_search' % (self.name, type)
-
-        #construct search
-        search = {}
-        if query:
-            search['query'] = query
-        if filter:
-            search['filter'] = filter
-        if facets:
-            search['facets'] = facets
-        if start:
-            search['from'] = start
-        if size:
-            search['size'] = size
-    
         data = json.dumps(search, cls=Encoder)
-        return self.client.send('GET', path, data)
+        response = self.client.send('GET', path, data)
+        return SearchResult(search, response)
 
     def alias(self, add=None, remove=None):
         path = '_aliases'
@@ -80,7 +67,6 @@ class Index(object):
                     'remove': {'index': self.name, 'alias': old_alias }
                 })
         data = json.dumps(data)
-        print data
         return self.client.send('POST', path, data)
 
     def flush(self):

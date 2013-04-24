@@ -11,59 +11,92 @@ class Query(object):
         else:
             return [value]
 
+class MatchAllQuery(Query):
+    def __init__(self):
+        data = { 'match_all': {} }
+        super(MatchAllQuery, self).__init__(data)
+
 class BoolQuery(Query):
     def __init__(self, must=None, must_not=None, should=None):
-        data = { 'bool': {} }
-        super(BoolQuery, self).__init__(data)
+        super(BoolQuery, self).__init__(None)
+        self.must_queries = []
+        self.must_not_queries = []
+        self.should_queries = []
 
         self.must(must)
         self.must_not(must_not)
         self.should(should)
 
     def must(self, query):
-        self._add_query(query, 'must')
+        if query is not None:
+            self.must_queries.extend(self._to_list(query))
         return self
 
     def must_not(self, query):
-        self._add_query(query, 'must_not')
+        if query is not None:
+            self.must_not_queries.extend(self._to_list(query))
         return self
 
     def should(self, query):
-        self._add_query(query, 'should')
+        if query is not None:
+            self.should_queries.extend(self._to_list(query))
         return self
 
-    def _add_query(self, query, key):
-        if query:
-            queries = self.data['bool'].get(key, None)
-            if queries is None:
-                queries = []
-                self.data['bool'][key] = queries
-            queries.extend(self._to_list(query))
+    def to_json(self):
+        data = { 'bool': {} }
+        if self.must_queries:
+            queries = data['bool']['must'] = []
+            for q in self.must_queries:
+                queries.append(q)
+        if self.must_not_queries:
+            queries = data['bool']['must_not'] = []
+            for q in self.must_not_queries:
+                queries.append(q)
+        if self.should_filters:
+            queries = data['bool']['should'] = []
+            for q in self.should_queries:
+                queries.append(q)
+        return data
 
 class FilteredQuery(Query):
     def __init__(self, query, filter):
+        super(FilteredQuery, self).__init__(None)
+        self.query = query
+        self.filter = filter
+    
+    def to_json(self):
         data = { 'filtered': {
-            'query': query,
-            'filter': filter
+            'query': self.query,
+            'filter': self.filter
             }
         }
-        super(FilteredQuery, self).__init__(data)
+        return data
 
 class MatchQuery(Query):
     def __init__(self, q, field):
+        super(MatchQuery, self).__init__(None)
+        self.q = q
+        self.field = field
+    
+    def to_json(self):
         data = { 'match': {} }
-        data['match'][field] = q
-        super(MatchQuery, self).__init__(data)
+        data['match'][self.field] = self.q
+        return data
 
 class MultiMatchQuery(Query):
     def __init__(self, q, fields):
+        super(MultiMatchQuery, self).__init__(None)
+        self.q = q
+        self.fields = fields
+    
+    def to_json(self):
         data = { 'multi_match': {
-            'query': q,
-            'fields': self._parse_fields(fields)
+            'query': self.q,
+            'fields': self._parse_fields(self.fields)
             }
         }
-        super(MultiMatchQuery, self).__init__(data)
-    
+        return data
+
     def _parse_fields(self, fields):
         result = []
         for field in self._to_list(fields):
@@ -76,28 +109,43 @@ class MultiMatchQuery(Query):
 class RangeQuery(Query):
     def __init__(self, field, start=None, end=None,
             include_start=True, include_end=True):
-        data = { 'range': {} }
-        data['range'][field] = {
-            'include_lower': include_start,
-            'include_upper': include_end
-        }
-        if start:
-            data['range'][field]['from'] = start
-        if end:
-            data['range'][field]['to'] = end
+        super(RangeQuery, self).__init__(None)
+        self.field = field
+        self.start = start
+        self.end = end
+        self.include_start = include_start
+        self.include_end = include_end
 
-        super(RangeQuery, self).__init__(data)
+    def to_json(self):
+        data = { 'range': {} }
+        data['range'][self.field] = {
+            'include_lower': self.include_start,
+            'include_upper': self.include_end
+        }
+        if self.start is not None:
+            data['range'][self.field]['from'] = self.start
+        if self.end is not None:
+            data['range'][self.field]['to'] = self.end
+        return data
 
 class TermQuery(Query):
     def __init__(self, field, value):
+        super(TermQuery, self).__init__(None)
+        self.field = field
+        self.value = value
+    
+    def to_json(self):
         data = { 'term': {}}
-        data['term'][field] = value
-        super(TermQuery, self).__init__(data)
+        data['term'][self.field] = self.value
+        return data
 
 class TermsQuery(Query):
     def __init__(self, field, values):
+        super(TermsQuery, self).__init__(None)
+        self.field = field
+        self.values = values
+
+    def to_json(self):
         data = { 'terms': {}}
-        data['terms'][field] = self._to_list(values)
-        super(TermsQuery, self).__init__(data)
-
-
+        data['terms'][self.field] = self._to_list(self.values)
+        return data
