@@ -1,4 +1,5 @@
 import json
+import datetime
 
 class Encoder(json.JSONEncoder):
     def __init__(self, *args, **kwargs):
@@ -8,5 +9,7 @@ class Encoder(json.JSONEncoder):
         to_json = getattr(obj, 'to_json', None)
         if to_json:
             return obj.to_json()
+        elif isinstance(obj, datetime.datetime):
+            return obj.isoformat()
         else:
             return super(Encoder, self).default(obj)
