@@ -1,6 +1,16 @@
+import json
+
+from tres.encode import Encoder
+
 class Query(object):
     def __init__(self, data):
         self.data = data
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__, self.data)
+
+    def __str__(self):
+        return json.dumps(self.to_json(), cls=Encoder)
 
     def to_json(self):
         return self.data
@@ -15,6 +25,9 @@ class MatchAllQuery(Query):
     def __init__(self):
         data = { 'match_all': {} }
         super(MatchAllQuery, self).__init__(data)
+    
+    def __repr__(self):
+        return '%s()' % self.__class__
 
 class BoolQuery(Query):
     def __init__(self, must=None, must_not=None, should=None):
@@ -26,6 +39,11 @@ class BoolQuery(Query):
         self.must(must)
         self.must_not(must_not)
         self.should(should)
+    
+    def __repr__(self):
+        return '%s(must=%r, must_not=%r, should=%r)' % (
+                self.__class__, self.must_queries,
+                self.must_not_queries, self.should_queries)
 
     def must(self, query):
         if query is not None:
@@ -63,6 +81,10 @@ class FilteredQuery(Query):
         super(FilteredQuery, self).__init__(None)
         self.query = query
         self.filter = filter
+
+    def __repr__(self):
+        return '%s(query=%r, filter=%r)' % (
+                self.__class__, self.query, self.filter)
     
     def to_json(self):
         data = { 'filtered': {
@@ -77,6 +99,10 @@ class MatchQuery(Query):
         super(MatchQuery, self).__init__(None)
         self.q = q
         self.field = field
+
+    def __repr__(self):
+        return '%s(q=%r, field=%r)' % (
+                self.__class__, self.q, self.field)
     
     def to_json(self):
         data = { 'match': {} }
@@ -88,6 +114,10 @@ class MultiMatchQuery(Query):
         super(MultiMatchQuery, self).__init__(None)
         self.q = q
         self.fields = fields
+
+    def __repr__(self):
+        return '%s(q=%r, fields=%r)' % (
+                self.__class__, self.q, self.fields)
     
     def to_json(self):
         data = { 'multi_match': {
@@ -116,6 +146,10 @@ class RangeQuery(Query):
         self.include_start = include_start
         self.include_end = include_end
 
+    def __repr__(self):
+        return '%s(field=%r, start=%r, end=%r)' % (
+                self.__class__, self.field, self.start, self.end)
+
     def to_json(self):
         data = { 'range': {} }
         data['range'][self.field] = {
@@ -133,6 +167,10 @@ class TermQuery(Query):
         super(TermQuery, self).__init__(None)
         self.field = field
         self.value = value
+
+    def __repr__(self):
+        return '%s(field=%r, value=%r)' % (
+                self.__class__, self.field, self.value)
     
     def to_json(self):
         data = { 'term': {}}
@@ -144,6 +182,10 @@ class TermsQuery(Query):
         super(TermsQuery, self).__init__(None)
         self.field = field
         self.values = values
+
+    def __repr__(self):
+        return '%s(field=%r, values=%r)' % (
+                self.__class__, self.field, self.values)
 
     def to_json(self):
         data = { 'terms': {}}

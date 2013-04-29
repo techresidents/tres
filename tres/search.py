@@ -1,5 +1,8 @@
+import json
+
 from trpycore.util.attribute import xgetattr
 
+from tres.encode import Encoder
 from tres.facet import FacetResultFactory
 
 class Search(object):
@@ -9,6 +12,14 @@ class Search(object):
         self.facets = facets
         self.start = start
         self.size = size
+    
+    def __repr__(self):
+        return '%s(query=%r, filter=%r, facets=%r, start=%r, size=%r)' % (
+                self.__class__, self.query, self.filter,
+                self.facets, self.start, self.size)
+
+    def __str__(self):
+        return json.dumps(self.to_json(), cls=Encoder)
 
     def to_json(self):
         result = {}
@@ -40,6 +51,12 @@ class SearchResult(object):
         result_facets = data.get('facets') or {}
         for name, facet in result_facets.items():
             self.facets[name] = factory.create(search, name, facet)
+    
+    def __repr__(self):
+        return '%s(search=%r, data=%r)' % (self.__class__, self.search, self.data)
+
+    def __str__(self):
+        return json.dumps(self.data)
 
     @property
     def hits_total(self):
@@ -49,6 +66,12 @@ class SearchResult(object):
 class SearchHit(object):
     def __init__(self, data):
         self.data = data or {}
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__, self.data)
+
+    def __str__(self):
+        return json.dumps(self.data)
 
     @property
     def index(self):

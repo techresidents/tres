@@ -1,3 +1,6 @@
+import json
+
+from tres.encode import Encoder
 from tres.filter import RangeFilter, TermFilter
 
 class Facets(object):
@@ -7,6 +10,12 @@ class Facets(object):
             for key, facet in facets.items():
                 self.data[key] = facet
     
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__, self.data)
+
+    def __str__(self):
+        return json.dumps(self.to_json(), cls=Encoder)
+
     def to_json(self):
         return self.data
 
@@ -17,6 +26,12 @@ class Facets(object):
 class Facet(object):
     def __init__(self, data):
         self.data = data
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__, self.data)
+
+    def __str__(self):
+        return json.dumps(self.to_json(), cls=Encoder)
 
     def to_json(self):
         return self.data
@@ -36,6 +51,13 @@ class RangeFacet(Facet):
             self.include_start = include_start
             self.include_end = include_end
             self.name = name
+
+        def __repr__(self):
+            return '%s(start=%r, end=%r)' % (
+                    self.__class__, self.start, self.end)
+
+        def __str__(self):
+            return json.dumps(self.to_json(), cls=Encoder)
         
         def to_json(self):
             result = {
@@ -52,6 +74,10 @@ class RangeFacet(Facet):
         super(RangeFacet, self).__init__(None)
         self.field = field
         self.ranges = ranges or []
+
+    def __repr__(self):
+        return '%s(field=%r, ranges=%r)' % (
+                self.__class__, self.field, self.ranges)
     
     def add_range(self, start=None, end=None,
             include_start=True, include_end=True, name=None):
@@ -70,9 +96,13 @@ class TermsFacet(Facet):
         self.field = field
         self.size = size
 
+    def __repr__(self):
+        return '%s(field=%r, size=%r)' % (
+                self.__class__, self.field, self.size)
+
     def to_json(self):
         data = {'terms': {} }
-        data['terms'][self.field] = {
+        data['terms'] = {
             'field': self.field,
             'size': self.size
         }
@@ -98,7 +128,7 @@ class FacetResult(object):
         self.field = search_facet.field
         self.data = data or {}
         self.items = []
-    
+
     @property
     def type(self):
         return self.data.get('_type')

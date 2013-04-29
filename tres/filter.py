@@ -1,7 +1,16 @@
+import json
+
+from tres.encode import Encoder
 
 class Filter(object):
     def __init__(self, data):
         self.data = data
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__, self.data)
+
+    def __str__(self):
+        return json.dumps(self.to_json(), cls=Encoder)
 
     def to_json(self):
         return self.data
@@ -22,6 +31,11 @@ class BoolFilter(Filter):
         self.must(must)
         self.must_not(must_not)
         self.should(should)
+
+    def __repr__(self):
+        return '%s(must=%r, must_not=%r, should=%r)' % (
+                self.__class__, self.must_filters,
+                self.must_not_filters, self.should_filters)
 
     def must(self, filter):
         if filter is not None:
@@ -64,6 +78,10 @@ class RangeFilter(Filter):
         self.include_start = include_start
         self.include_end = include_end
 
+    def __repr__(self):
+        return '%s(field=%r, start=%r, end=%r)' % (
+                self.__class__, self.field, self.start, self.end)
+
     def to_json(self):
         data = { 'range': {} }
         data['range'][self.field] = {
@@ -82,6 +100,10 @@ class TermFilter(Filter):
         self.field = field
         self.value = value
 
+    def __repr__(self):
+        return '%s(field=%r, value=%r)' % (
+                self.__class__, self.field, self.value)
+
     def to_json(self):
         data = { 'term': {}}
         data['term'][self.field] = self.value
@@ -92,6 +114,10 @@ class TermsFilter(Filter):
         super(TermsFilter, self).__init__(None)
         self.field = field
         self.values = values
+
+    def __repr__(self):
+        return '%s(field=%r, values=%r)' % (
+                self.__class__, self.field, self.values)
 
     def to_json(self):
         data = { 'terms': {}}
