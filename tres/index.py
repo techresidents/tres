@@ -32,7 +32,7 @@ class Index(object):
         path = '%s/%s/%s' % (self.name, type, key)
         if create:
             path += '/_create'
-        data = json.dumps(doc)
+        data = json.dumps(doc, cls=Encoder)
         return self.client.send('PUT', path, data)
 
     def update(self, key, params, type=None):
@@ -117,9 +117,9 @@ class BulkIndex(object):
         lines = []
         for item in self.buffer:
             if isinstance(item, tuple):
-                lines.extend([json.dumps(i) for i in item])
+                lines.extend([json.dumps(i, cls=Encoder) for i in item])
             else:
-                lines.append(json.dumps(item))
+                lines.append(json.dumps(item, cls=Encoder))
 
         path = '%s/_bulk' % self.name
         data = '\n'.join(lines) + '\n'
