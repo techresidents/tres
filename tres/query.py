@@ -70,7 +70,7 @@ class BoolQuery(Query):
             queries = data['bool']['must_not'] = []
             for q in self.must_not_queries:
                 queries.append(q)
-        if self.should_filters:
+        if self.should_queries:
             queries = data['bool']['should'] = []
             for q in self.should_queries:
                 queries.append(q)
