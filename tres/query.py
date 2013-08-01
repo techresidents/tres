@@ -191,3 +191,21 @@ class TermsQuery(Query):
         data = { 'terms': {}}
         data['terms'][self.field] = self._to_list(self.values)
         return data
+
+class CustomScoreQuery(Query):
+    def __init__(self, query, script):
+        super(CustomScoreQuery, self).__init__(None)
+        self.query = query
+        self.script = script
+
+    def __repr__(self):
+        return '%s(query=%r, script=%r)' % (
+                self.__class__, self.query, self.script)
+    
+    def to_json(self):
+        data = { 'custom_score': {
+            'query': self.query,
+            'script': self.script
+            }
+        }
+        return data
