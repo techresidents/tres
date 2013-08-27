@@ -6,17 +6,18 @@ from tres.encode import Encoder
 from tres.facet import FacetResultFactory
 
 class Search(object):
-    def __init__(self, query=None, filter=None, facets=None, start=None, size=None):
+    def __init__(self, query=None, filter=None, facets=None, start=None, size=None, sort=None):
         self.query = query
         self.filter = filter
         self.facets = facets
         self.start = start
         self.size = size
+        self.sort = sort
     
     def __repr__(self):
-        return '%s(query=%r, filter=%r, facets=%r, start=%r, size=%r)' % (
+        return '%s(query=%r, filter=%r, facets=%r, start=%r, size=%r, sort=%r)' % (
                 self.__class__, self.query, self.filter,
-                self.facets, self.start, self.size)
+                self.facets, self.start, self.size, self.sort)
 
     def __str__(self):
         return json.dumps(self.to_json(), cls=Encoder)
@@ -33,6 +34,8 @@ class Search(object):
             result['from'] = self.start
         if self.size is not None:
             result['size'] = self.size
+        if self.sort is not None:
+            result['sort'] = self.sort
         
         return result
 
