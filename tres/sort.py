@@ -34,11 +34,14 @@ class Sort(object):
     def __str__(self):
         return json.dumps(self.to_json(), cls=Encoder)
 
+    def __len__(self):
+        return len(self.data)
+
     def to_json(self):
         """ Convert object to json format """
         json = []
-        for tup in self.data:
-            json.append({tup[0]: tup[1]})
+        for field, direction in self.data:
+            json.append({field: direction})
         return json
 
     def add(self, es_field, direction='asc'):
@@ -49,28 +52,5 @@ class Sort(object):
             direction: direction string (expects 'asc' or 'desc')
 
         """
-        self.data.append( (es_field, self._to_es_direction(direction)) )
+        self.data.append( (es_field, direction.lower()) )
         return self
-
-    def length(self):
-        """ Returns the number of fields to sort by."""
-        return len(self.data)
-
-    def _to_es_direction(self, direction):
-        """ Convert sorting direction string into a string ES can understand.
-
-        Args:
-            direction: direction string
-        Returns:
-            Returns 'asc' by default.
-            Returns 'desc' for descending sorts.
-
-        ES supports the following sort direction strings:
-            'asc' for ascending
-            'desc' for descending
-
-        """
-        es_direction = 'asc'
-        if direction.lower() == 'desc':
-            es_direction = 'desc'
-        return es_direction
