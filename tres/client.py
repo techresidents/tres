@@ -41,7 +41,8 @@ class ESClient(object):
         return self.send('DELETE', name)
 
     def send(self, method, path, data=None, headers=None):
-        response = self.rest_client.send_request(method, path, data, headers)
-        result = json.loads(response.read())
+        response_context = self.rest_client.send_request(method, path, data, headers)
+        with response_context as response:
+            result = json.loads(response.read())
         return result
 
