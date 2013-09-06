@@ -43,6 +43,7 @@ class ESClient(object):
     def send(self, method, path, data=None, headers=None):
         response_context = self.rest_client.send_request(method, path, data, headers)
         with response_context as response:
-            result = json.loads(response.read())
+            data = response.read()
+            result = json.loads(data)
         return result
 
