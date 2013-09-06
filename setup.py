@@ -14,7 +14,7 @@ def find_packages():
 
 setup(
     name='tres',
-    version = '0.4.0',
+    version = '0.5.0',
     author = 'Tech Residents, Inc.',
     packages = find_packages(),
     license = open('LICENSE').read(),
@@ -33,6 +33,6 @@ setup(
         ],
     install_requires=[
         'trpycore>=0.11.0',
-        'trhttp>=0.4.0'
+        'trhttp>=0.5.0'
     ]
 )
